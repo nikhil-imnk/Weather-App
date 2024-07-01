@@ -6,20 +6,27 @@ import { useState } from "react";
 export default function SearchBox({ newInfo }) {
   let [city, setCity] = useState("");
   const apiKey = import.meta.env.VITE_API_KEY;
+  let [error, setError] = useState(false);
 
   const API_URL = "https://api.openweathermap.org/data/2.5/weather?q=";
 
   let getWeatherInfo = async () => {
-    let data = await fetch(`${API_URL}${city}&appid=${apiKey}&units=metric`);
-    let jsonData = await data.json();
-    let info = {
-      city: city,
-      temp: jsonData.main.temp,
-      temp_max: jsonData.main.temp_max,
-      temp_min: jsonData.main.temp_min,
-      humidity: jsonData.main.humidity,
-    };
-    newInfo(info);
+    try {
+      let data = await fetch(`${API_URL}${city}&appid=${apiKey}&units=metric`);
+      let jsonData = await data.json();
+      let info = {
+        city: city,
+        temp: jsonData.main.temp,
+        temp_max: jsonData.main.temp_max,
+        temp_min: jsonData.main.temp_min,
+        humidity: jsonData.main.humidity,
+      };
+      console.log(info);
+      setError(false);
+      newInfo(info);
+    } catch (err) {
+      setError(true);
+    }
   };
 
   let handleChange = (event) => {
@@ -28,7 +35,7 @@ export default function SearchBox({ newInfo }) {
 
   let handleSubmit = (event) => {
     event.preventDefault();
-    console.log(city);
+
     getWeatherInfo(city);
     setCity("");
   };
@@ -50,6 +57,7 @@ export default function SearchBox({ newInfo }) {
           Search
         </Button>
       </form>
+      {error ? <p style={{ color: "red" }}>No such location exist!</p> : null}
     </div>
   );
 }
